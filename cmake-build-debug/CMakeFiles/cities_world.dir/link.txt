@@ -1,0 +1,3 @@
+C:\Users\chg\scoop\persist\jetbrains-toolbox\apps\CLion\bin\cmake\win\x64\bin\cmake.exe -E rm -f CMakeFiles\cities_world.dir/objects.a
+C:\Users\chg\scoop\persist\jetbrains-toolbox\apps\CLion\bin\mingw\bin\ar.exe qc CMakeFiles\cities_world.dir/objects.a @CMakeFiles\cities_world.dir\objects1.rsp
+C:\Users\chg\scoop\persist\jetbrains-toolbox\apps\CLion\bin\mingw\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\cities_world.dir/objects.a -Wl,--no-whole-archive -o cities_world.exe -Wl,--out-implib,libcities_world.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cities_world.dir\linkLibs.rsp

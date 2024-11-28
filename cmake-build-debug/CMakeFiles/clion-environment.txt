@@ -1,0 +1,5 @@
+ToolSet: 11.0 w64 (local)@C:\Users\chg\scoop\persist\jetbrains-toolbox\apps\CLion\bin\mingw
+Ninja: 1.12.1@C:\Users\chg\scoop\persist\jetbrains-toolbox\apps\CLion\bin\ninja\win\x64\ninja.exe
+Options: 
+
+Options:
