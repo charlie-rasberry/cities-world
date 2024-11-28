@@ -1,4 +1,7 @@
 #include <iostream>
+#include <cmath>
+#include <bits/stl_algo.h>
+
 class City {
 
     //  Represent all city details, name , country , history, mayorName, mayorAddress, population
@@ -61,26 +64,49 @@ class City {
 
 };
 
-int main() {
-    City defaultCity;
-    std::cout << "Default City:\n";
-    defaultCity.display();
-    std::cout << "\n";
+//  Class for displacement formula and angular distance
+//  cos d = sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
+//  (6371*pi*d) / 180 = s (km)
+class DistanceCalculator {
+    public:
+    //  Method to calculate the displacement between cities
+    static double calculateDistance(const City& city1, const City& city2) {
+        // Convert lat and lon to rads from deg
+        double lat1 = city1.latitude * M_PI / 180.0;
+        double lon1 = city1.longitude * M_PI / 180.0;
+        double lat2 = city2.latitude * M_PI / 180.0;
+        double lon2 = city2.longitude * M_PI / 180.0;
 
+        //  find cos(D) angular distance sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
+        double cosD = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2);
+
+        //  cosD validation range = [-1, 1]
+        //  Note clamp restrains value to -1 to 1 so that trig works and no domain error.
+        cosD = std::clamp(cosD, -1.0, 1.0);
+
+        //  Use acos to find d
+        double d = acos(cosD);
+
+        //  Convert angular distance to linear distance, where 6371.0 is radius of Earth in km.
+        double distance = d * 6371.0;
+
+        return distance;
+
+    }
+};
+
+int main() {
     //  Test Hardcoded City
     City myCity("New York", "USA", 8419600, 2021, 40.7128, -74.0060, "Eric Adams", "City Hall, NYC", "Founded in 1624.");
+    City anCity("London", "UK", 8982000, 2021, 51.5074, -0.1278, "Sadiq Khan", "City Hall, London", "Founded by Romans.");
     std::cout << "My City:\n";
     myCity.display();
     std::cout << "\n";
+    anCity.display();
+    std::cout << "\n";
 
-    //  Test Update
-    /*
-    myCity.update("population", 8623000); // Updating population
-    myCity.update("mayorName", "New Mayor"); // Updating mayor name
-
-    std::cout << "Updated City:\n";
-    myCity.display();
-    */
+    double distance = DistanceCalculator::calculateDistance(myCity, anCity);
+    std::cout << "Distance: " << distance << "\n";
 
     return 0;
 
