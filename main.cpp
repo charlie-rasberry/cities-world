@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include <bits/stl_algo.h>
+#include <vector>
+#include <fstream>
+#include <sstream>
 
 class City {
 
@@ -67,10 +70,13 @@ class City {
 //  Class for displacement formula and angular distance
 //  cos d = sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
 //  (6371*pi*d) / 180 = s (km)
+
 class DistanceCalculator {
     public:
+    static constexpr double EARTH_RADIUS_KM = 6371.0;
     //  Method to calculate the displacement between cities
     static double calculateDistance(const City& city1, const City& city2) {
+
         // Convert lat and lon to rads from deg
         double lat1 = city1.latitude * M_PI / 180.0;
         double lon1 = city1.longitude * M_PI / 180.0;
@@ -87,26 +93,105 @@ class DistanceCalculator {
         //  Use acos to find d
         double d = acos(cosD);
 
-        //  Convert angular distance to linear distance, where 6371.0 is radius of Earth in km.
-        double distance = d * 6371.0;
+        //  Convert angular distance to linear distance.
+        double distance = d * EARTH_RADIUS_KM;
 
         return distance;
 
     }
 };
 
-int main() {
-    //  Test Hardcoded City
-    City myCity("New York", "USA", 8419600, 2021, 40.7128, -74.0060, "Eric Adams", "City Hall, NYC", "Founded in 1624.");
-    City anCity("London", "UK", 8982000, 2021, 51.5074, -0.1278, "Sadiq Khan", "City Hall, London", "Founded by Romans.");
-    std::cout << "My City:\n";
-    myCity.display();
-    std::cout << "\n";
-    anCity.display();
-    std::cout << "\n";
+//  Class to manage the file cities data is stored in.
+//  File Format :
+//  name,country,population,recordYear,latitude,longitude,mayorName,mayorAddress,history
+class FileManager {
+public:
+    static std::vector<City> loadData(const std::string& fileName) {
+        std::vector<City> cities;   //  Store Loaded cities instances
+        std::ifstream file(fileName);
 
-    double distance = DistanceCalculator::calculateDistance(myCity, anCity);
-    std::cout << "Distance: " << distance << "\n";
+        //  Validate that the file opened or not
+        if (!file.is_open()) {
+            std::cerr << "Error: Cannot open file.\n";
+            return cities;
+        }
+        //  While loop to read files with cities data
+        std::string line;
+        while (std::getline(file, line)) {
+
+            std::istringstream stream(line);
+
+            std::string name, country, history, mayorName, mayorAddress;
+            int population, recordYear;
+            double latitude, longitude;
+
+            //  Read the data from a single line
+            std::getline(stream, name, ',');
+            std::getline(stream, country, ',');
+            stream >> population;
+            stream.ignore(); // Skip comma
+            stream >> recordYear;
+            stream.ignore(); // Skip comma
+            stream >> latitude;
+            stream.ignore(); // Skip comma
+            stream >> longitude;
+            stream.ignore(); // Skip comma
+            std::getline(stream, mayorName, ',');
+            std::getline(stream, mayorAddress, ',');
+            std::getline(stream, history);
+
+            cities.emplace_back(name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history);
+        }
+
+        file.close();
+        return cities;
+    }
+    static void saveData(const std::vector<City>& cities, const std::string& fileName) {
+        std::ofstream file(fileName);
+
+        if (!file.is_open()) {
+            std::cerr << "Error: Cannot open file.\n";
+            return;
+        }
+
+        for (const auto& city : cities) {
+            file << city.name << ","
+            << city.country << ","
+            << city.population << ","
+            << city.recordYear << ","
+            << city.latitude << ","
+            << city.longitude << ","
+            << city.mayorName << ","
+            << city.mayorAddress << ","
+            << city.history << "\n";
+
+        }
+        file.close();
+    }
+};
+
+int main() {
+    //  File Creation
+    const std::string fileName = "cities.txt";
+
+    // Load cities from file
+    std::vector<City> cities = FileManager::loadData(fileName);
+
+    //  Test Hardcoded City
+    cities.emplace_back("New York", "USA", 8419600, 2021, 40.7128, -74.0060, "Eric Adams", "City Hall, NYC", "Founded in 1624.");
+    cities.emplace_back("London", "UK", 8982000, 2021, 51.5074, -0.1278, "Sadiq Khan", "City Hall, London", "Founded by Romans.");
+
+    // Display loaded cities
+    std::cout << "Loaded Cities:\n";
+    for (const auto& city : cities) {
+        city.display();
+        std::cout << "\n";
+    }
+
+    // Save updated cities back to file
+    FileManager::saveData(cities, fileName);
+
+    std::cout << "Data saved successfully to " << fileName << ".\n";
 
     return 0;
 
