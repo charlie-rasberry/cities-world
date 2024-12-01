@@ -1,0 +1,5 @@
+New York,USA,8419600,2021,40.7128,-74.0060,Eric Adams,City Hall,Founded in 1624.
+London,UK,8982000,2021,51.5074,-0.1278,Sadiq Khan,City Hall,Founded by Romans.
+Paris,France,2148000,2021,48.8566,2.3522,Anne Hidalgo,Hotel de Ville,Founded in the 3rd century BC.
+Tokyo,Japan,13929286,2021,35.6895,139.6917,Yuriko Koike,Tokyo Metropolitan Government Building,Founded in 1457.
+Sydney,Australia,5312163,2021,-33.8688,151.2093,Clover Moore,Sydney Town Hall,Founded in 1788.

@@ -16,13 +16,6 @@ class City {
         double latitude, longitude;
 
         //  Constructor and Destructor
-
-        City ()
-            //  Default to be overloaded
-            : name (""), country (""), history (""), mayorName (""),
-            mayorAddress(""), population(0), recordYear(0),
-            latitude(0.0), longitude(0.0) {}
-
         //  Main constructor
         City (std::string cityName, std::string cityCountry, int pop, int year, double lat, double lon
             , std::string mayor, std::string address, std::string hist)
@@ -78,10 +71,10 @@ class DistanceCalculator {
     static double calculateDistance(const City& city1, const City& city2) {
 
         // Convert lat and lon to rads from deg
-        double lat1 = city1.latitude * M_PI / 180.0;
-        double lon1 = city1.longitude * M_PI / 180.0;
-        double lat2 = city2.latitude * M_PI / 180.0;
-        double lon2 = city2.longitude * M_PI / 180.0;
+        const double lat1 = city1.latitude * M_PI / 180.0;
+        const double lon1 = city1.longitude * M_PI / 180.0;
+        const double lat2 = city2.latitude * M_PI / 180.0;
+        const double lon2 = city2.longitude * M_PI / 180.0;
 
         //  find cos(D) angular distance sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
         double cosD = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2);
@@ -91,10 +84,10 @@ class DistanceCalculator {
         cosD = std::clamp(cosD, -1.0, 1.0);
 
         //  Use acos to find d
-        double d = acos(cosD);
+        const double d = acos(cosD);
 
         //  Convert angular distance to linear distance.
-        double distance = d * EARTH_RADIUS_KM;
+        const double distance = d * EARTH_RADIUS_KM;
 
         return distance;
 
@@ -178,10 +171,21 @@ class UserInterface {
 public:
     // Start the user interface loop
     static void start(std::vector<City>& cities) {
+        std::string fileName ;
         std::string command;
 
         std::cout << "Welcome to the Cities of the World Program!\n";
-        std::cout << "Available commands: add, delete, update, display, save, exit\n";
+
+        //  Check if the user wants to use a previously edited file
+        std::cout << "Enter the filename to load data :";
+        std::getline(std::cin, fileName);
+        if (fileName.empty()) {
+            std::cout << "Starting without a file . . ." << std::endl;
+        } else {
+            cities = FileManager::loadData(fileName);
+        }
+
+        std::cout << "Available commands: add, delete, update, display, distance, save, exit\n";
 
         while (true) {
             std::cout << "\nEnter a command: ";
@@ -195,6 +199,8 @@ public:
                 updateCity(cities);
             } else if (command == "display") {
                 displayCities(cities);
+            } else if (command =="distance") {
+                distance(cities);
             } else if (command == "save") {
                 saveToFile(cities);
             } else if (command == "exit") {
@@ -254,9 +260,8 @@ private:
         std::string cityName;
         std::getline(std::cin, cityName);
 
-        const auto it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city) {
-            return city.name == cityName;
-        });
+        std::vector<City>::iterator it;
+        cityNameIterator( cities, cityName, it);
 
         if (it != cities.end()) {
             cities.erase(it);
@@ -265,6 +270,13 @@ private:
             std::cout << "Error: City '" << cityName << "' not found.\n";
         }
     }
+    //  Helper to iterate through city names uses lambda function with capture clause,
+    static bool cityNameIterator (std::vector<City>& cities, std::string &cityName, std::vector<City>::iterator& it) {
+        it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city) {
+            return city.name == cityName;   //  method of lambda func
+        });
+        return it != cities.end();
+    }
 
     // Update a city's details
     static void updateCity(std::vector<City>& cities) {
@@ -272,11 +284,8 @@ private:
         std::string cityName;
         std::getline(std::cin, cityName);
 
-        const auto iter=
-            std::find_if(cities.begin(), cities.end(),[&cityName](const City& city)
-            {
-                                   return city.name == cityName;
-            });
+        std::vector<City>::iterator iter;
+        cityNameIterator( cities, cityName, iter);
 
         if (iter != cities.end()) {
             std::string field;
@@ -354,6 +363,40 @@ private:
             }
         }
     }
+
+    static void distance(std::vector<City>& cities) {
+        if (cities.empty()) {
+            std::cout << "No cities to calculate the distance between.\n";
+            return;
+        }
+
+        std::cout << "Enter the first city: ";
+        std::string cityA;
+        std::getline(std::cin, cityA);
+
+        std::cout << "Enter the second city: ";
+        std::string cityB;
+        std::getline(std::cin, cityB);
+
+        std::vector<City>::iterator iterA, iterB;
+
+        // Find the first city
+        if (!cityNameIterator(cities, cityA, iterA)) {
+            std::cout << "City '" << cityA << "' not found.\n";
+            return;
+        }
+
+        // Find the second city
+        if (!cityNameIterator(cities, cityB, iterB)) {
+            std::cout << "City '" << cityB << "' not found.\n";
+            return;
+        }
+
+        // Calculate the distance
+        double distance = DistanceCalculator::calculateDistance(*iterA, *iterB);
+        std::cout << "The distance between " << cityA << " and " << cityB << " is " << distance << " kilometers.\n";
+    }
+
     //  Save functionality
     static void saveToFile(const std::vector<City>& cities) {
         std::cout << "Enter the file name to save the data: ";
