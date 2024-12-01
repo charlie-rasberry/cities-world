@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cmath>
-#include <bits/stl_algo.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 class City {
 
@@ -170,32 +170,204 @@ public:
     }
 };
 
-int main() {
-    //  File Creation
-    const std::string fileName = "cities.txt";
+//  Class for User Interface, this includes user input, output and command processing,
+//  add, save, display, delete all or city.
+//  name,country,population,recordYear,latitude,longitude,mayorName,mayorAddress,history
 
-    // Load cities from file
-    std::vector<City> cities = FileManager::loadData(fileName);
+class UserInterface {
+public:
+    // Start the user interface loop
+    static void start(std::vector<City>& cities) {
+        std::string command;
 
-    //  Test Hardcoded City
-    cities.emplace_back("New York", "USA", 8419600, 2021, 40.7128, -74.0060, "Eric Adams", "City Hall, NYC", "Founded in 1624.");
-    cities.emplace_back("London", "UK", 8982000, 2021, 51.5074, -0.1278, "Sadiq Khan", "City Hall, London", "Founded by Romans.");
+        std::cout << "Welcome to the Cities of the World Program!\n";
+        std::cout << "Available commands: add, delete, update, display, save, exit\n";
 
-    // Display loaded cities
-    std::cout << "Loaded Cities:\n";
-    for (const auto& city : cities) {
-        city.display();
-        std::cout << "\n";
+        while (true) {
+            std::cout << "\nEnter a command: ";
+            std::getline(std::cin, command);
+
+            if (command == "add") {
+                addCity(cities);
+            } else if (command == "delete") {
+                deleteCity(cities);
+            } else if (command == "update") {
+                updateCity(cities);
+            } else if (command == "display") {
+                displayCities(cities);
+            } else if (command == "save") {
+                saveToFile(cities);
+            } else if (command == "exit") {
+                std::cout << "Exiting the program. Goodbye!\n";
+                break;
+            } else {
+                std::cout << "Invalid command. Please try again.\n";
+            }
+        }
     }
 
-    // Save updated cities back to file
-    FileManager::saveData(cities, fileName);
+private:
+    // Add a new city
+    static void addCity(std::vector<City>& cities) {
+        std::string name, country, history, mayorName, mayorAddress;
+        int population, recordYear;
+        double latitude, longitude;
 
-    std::cout << "Data saved successfully to " << fileName << ".\n";
+        std::cout << "Enter city name: ";
+        std::getline(std::cin, name);
 
+        std::cout << "Enter country: ";
+        std::getline(std::cin, country);
+
+        std::cout << "Enter population: ";
+        std::cin >> population;
+        std::cin.ignore(); // Clear newline character
+
+        std::cout << "Enter record year: ";
+        std::cin >> recordYear;
+        std::cin.ignore();
+
+        std::cout << "Enter latitude: ";
+        std::cin >> latitude;
+        std::cin.ignore();
+
+        std::cout << "Enter longitude: ";
+        std::cin >> longitude;
+        std::cin.ignore();
+
+        std::cout << "Enter mayor name: ";
+        std::getline(std::cin, mayorName);
+
+        std::cout << "Enter mayor address: ";
+        std::getline(std::cin, mayorAddress);
+
+        std::cout << "Enter short history: ";
+        std::getline(std::cin, history);
+
+        cities.emplace_back(name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history);
+        std::cout << "City '" << name << "' added successfully.\n";
+    }
+
+    // Delete a city
+    static void deleteCity(std::vector<City>& cities) {
+        std::cout << "Enter the name of the city to delete: ";
+        std::string cityName;
+        std::getline(std::cin, cityName);
+
+        const auto it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city) {
+            return city.name == cityName;
+        });
+
+        if (it != cities.end()) {
+            cities.erase(it);
+            std::cout << "City '" << cityName << "' has been deleted successfully.\n";
+        } else {
+            std::cout << "Error: City '" << cityName << "' not found.\n";
+        }
+    }
+
+    // Update a city's details
+    static void updateCity(std::vector<City>& cities) {
+        std::cout << "Enter the name of the city to update: ";
+        std::string cityName;
+        std::getline(std::cin, cityName);
+
+        const auto iter=
+            std::find_if(cities.begin(), cities.end(),[&cityName](const City& city)
+            {
+                                   return city.name == cityName;
+            });
+
+        if (iter != cities.end()) {
+            std::string field;
+            std::cout << "Enter the field to update (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history): ";
+            std::getline(std::cin, field);
+
+            if (field == "name" || field == "country" || field == "mayorName" || field == "mayorAddress" || field == "history") {
+                std::cout << "Enter the new value: ";
+                std::string value;
+                std::getline(std::cin, value);
+                iter->update(field, value);
+            } else if (field == "population" || field == "recordYear") {
+                std::cout << "Enter the new value: ";
+                int value;
+                std::cin >> value;
+                std::cin.ignore();
+                iter->update(field, value);
+            } else if (field == "latitude" || field == "longitude") {
+                std::cout << "Enter the new value: ";
+                double value;
+                std::cin >> value;
+                std::cin.ignore();
+                iter->update(field, value);
+            } else {
+                std::cout << "Invalid field name.\n";
+            }
+        } else {
+            std::cout << "Error: City '" << cityName << "' not found.\n";
+        }
+    }
+
+    // Display all cities
+    // Display all cities or a specific field
+    static void displayCities(const std::vector<City>& cities) {
+        if (cities.empty()) {
+            std::cout << "No cities to display.\n";
+            return;
+        }
+
+        std::cout << "Enter the field to display (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history) or press Enter to display all: ";
+        std::string field;
+        std::getline(std::cin, field);
+
+        if (field.empty()) {
+            // Display all details if no field is specified
+            for (const auto& city : cities) {
+                city.display();
+                std::cout << "\n";
+            }
+        } else {
+            // Display specific field for all cities
+            for (const auto& city : cities) {
+                if (field == "name") {
+                    std::cout << "City Name: " << city.name << "\n";
+                } else if (field == "country") {
+                    std::cout << "Country: " << city.country << "\n";
+                } else if (field == "population") {
+                    std::cout << "Population: " << city.population << "\n";
+                } else if (field == "recordYear") {
+                    std::cout << "Record Year: " << city.recordYear << "\n";
+                } else if (field == "latitude") {
+                    std::cout << "Latitude: " << city.latitude << "\n";
+                } else if (field == "longitude") {
+                    std::cout << "Longitude: " << city.longitude << "\n";
+                } else if (field == "mayorName") {
+                    std::cout << "Mayor Name: " << city.mayorName << "\n";
+                } else if (field == "mayorAddress") {
+                    std::cout << "Mayor Address: " << city.mayorAddress << "\n";
+                } else if (field == "history") {
+                    std::cout << "History: " << city.history << "\n";
+                } else {
+                    std::cout << "Invalid field name. Please try again.\n";
+                    return; // Exit early if the field is invalid
+                }
+            }
+        }
+    }
+    //  Save functionality
+    static void saveToFile(const std::vector<City>& cities) {
+        std::cout << "Enter the file name to save the data: ";
+        std::string fileName;
+        std::getline(std::cin, fileName);
+
+        FileManager::saveData(cities, fileName);
+        std::cout << "Data successfully saved to " << fileName << ".\n";
+    }
+};
+
+int main() {
+    std::vector<City> cities;
+    UserInterface::start(cities);
     return 0;
-
-
-
 }
 
