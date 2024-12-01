@@ -185,7 +185,7 @@ public:
             cities = FileManager::loadData(fileName);
         }
 
-        std::cout << "Available commands: add, delete, update, display, distance, save, exit\n";
+        std::cout << "Available commands: add, delete, search, update, display, distance, save, exit\n";
 
         while (true) {
             std::cout << "\nEnter a command: ";
@@ -195,6 +195,8 @@ public:
                 addCity(cities);
             } else if (command == "delete") {
                 deleteCity(cities);
+            } else if (command == "search") {
+                searchCity(cities);
             } else if (command == "update") {
                 updateCity(cities);
             } else if (command == "display") {
@@ -253,6 +255,21 @@ private:
         cities.emplace_back(name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history);
         std::cout << "City '" << name << "' added successfully.\n";
     }
+    //  Search for a particular city, could have been built in to display
+    static void searchCity(std::vector<City>& cities) {
+
+        std::cout << "Search for an  city by its name:"<< std::endl;
+        std::string cityName;
+        std::getline(std::cin, cityName);
+
+        std::vector<City>::iterator it;
+        if (cityNameIterator(cities, cityName, it)) {
+            // If city is found, display its details
+            it->display();
+        } else {
+            std::cout << "City '" << cityName << "' not found.\n";
+        }
+        }
 
     // Delete a city
     static void deleteCity(std::vector<City>& cities) {
@@ -325,7 +342,7 @@ private:
             return;
         }
 
-        std::cout << "Enter the field to display (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history) or press Enter to display all: ";
+        std::cout << "Enter the field to display (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history): [Enter Blank For ALL] ";
         std::string field;
         std::getline(std::cin, field);
 

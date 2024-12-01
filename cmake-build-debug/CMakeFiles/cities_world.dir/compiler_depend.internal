@@ -3,6 +3,7 @@
 
 CMakeFiles/cities_world.dir/main.cpp.obj
  C:/Users/chg/CLionProjects/cities-world/main.cpp
+ C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/algorithm
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward/binders.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bit
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/algorithmfwd.h
@@ -47,6 +48,8 @@ CMakeFiles/cities_world.dir/main.cpp.obj
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/predefined_ops.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ptr_traits.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/range_access.h
+ C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ranges_algo.h
+ C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ranges_algobase.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ranges_base.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ranges_cmp.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/bits/ranges_util.h
@@ -106,6 +109,8 @@ CMakeFiles/cities_world.dir/main.cpp.obj
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/new
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/numbers
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/ostream
+ C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/execution_defs.h
+ C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/glue_algorithm_defs.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/pstl/pstl_config.h
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/sstream
  C:/Users/chg/scoop/persist/jetbrains-toolbox/apps/CLion/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/stdexcept
