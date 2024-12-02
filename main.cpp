@@ -228,7 +228,7 @@ public:
             cities = FileManager::loadData(fileName);
         }
 
-        std::cout << "Available commands: add, delete, search, update, display, distance, save, exit\n";
+        std::cout << "Available commands: add, delete, search, update, display, distance, save, help, exit\n";
 
         while (true) {
             std::cout << "\nEnter a command: ";
@@ -248,6 +248,8 @@ public:
                 distance(cities);
             } else if (command == "save") {
                 saveToFile(cities);
+            } else if (command == "help") {
+                help();
             } else if (command == "exit") {
                 std::cout << "Exiting the program. Goodbye!\n";
                 break;
@@ -258,6 +260,11 @@ public:
     }
 
 private:
+    //  Quick help command to display commands if the user needs to
+    static void help() {
+        std::cout << "Available commands: add, delete, search, update, display, distance, save, exit\n";
+    }
+
     // Add a new city
     static void addCity(std::vector<City>& cities) {
         std::string name, country, history, mayorName, mayorAddress;
@@ -272,6 +279,11 @@ private:
 
         std::cout << "Enter population: ";
         std::cin >> population;
+        if (std::cin.fail() || population > 100000000000 || population < 0) {
+            std::cin.clear();
+            std::cerr<<"Error: Population Number Too Large"<< '\n';
+            std::cin >> population;
+        }
         std::cin.ignore(); // Clear newline character
 
         std::cout << "Enter record year: ";
