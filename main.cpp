@@ -7,8 +7,9 @@
 
 class City {
 
-    //  Represent all city details, name , country , history, mayorName, mayorAddress, population
-    //  , year population recorded.
+    //  Represent all city details, name , country , history, mayorName, mayorAddress, population and year of pop record
+    //  Provides a display method for showing city details and an update method for modifying details
+
     public:
         //  Attributes
         std::string name, country, history, mayorName, mayorAddress;
@@ -16,6 +17,11 @@ class City {
         double latitude, longitude;
 
         //  Constructor and Destructor
+        // Default constructor
+        City()
+        : name(), country(), history(), mayorName(), mayorAddress(),
+          population(0), recordYear(0), latitude(0.0), longitude(0.0) {}
+
         //  Main constructor
         City (std::string cityName, std::string cityCountry, int pop, int year, double lat, double lon
             , std::string mayor, std::string address, std::string hist)
@@ -36,8 +42,10 @@ class City {
                   << "Mayor Name: " << mayorName << "\n"
                   << "Mayor Address: " << mayorAddress << "\n"
                   << "Coordinates: (" << latitude << ", " << longitude << ")\n";
+
         }
     //  Update city variables by string int or double, likely make shorter if I have time.
+    //  Function Overloaded to use different param types.
     void update(const std::string& field, const std::string& value) {
             if (field == "name") name = value;
             else if (field == "country") country = value;
@@ -46,21 +54,26 @@ class City {
             else if (field == "mayorAddress") mayorAddress = value;
             else std::cerr << "Invalid field name.\n";
         }
-    void update(const std::string& field, int value) {
+    void update(const std::string& field, const int value) {
             if (field == "population") population = value;
             else if (field == "recordYear") recordYear = value;
             else std::cerr << "Invalid field name.\n";
         }
 
-    void update(const std::string& field, double value) {
+    void update(const std::string& field, const double value) {
             if (field == "latitude") latitude = value;
             else if (field == "longitude") longitude = value;
             else std::cerr << "Invalid field name.\n";
         }
 
+    bool operator==(const City& other) const {
+            //  City Objects are only equal if name and country match
+            return name == other.name && country == other.country;
+        }
+
 };
 
-//  Class for displacement formula and angular distance
+//  Class for distance formula (Haversine formula) and angular distance
 //  cos d = sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
 //  (6371*pi*d) / 180 = s (km)
 
@@ -163,13 +176,43 @@ public:
     }
 };
 
-//  Class for User Interface, this includes user input, output and command processing,
-//  add, save, display, delete all or city.
-//  name,country,population,recordYear,latitude,longitude,mayorName,mayorAddress,history
+/*  Class for User Interface, this includes user input, output and command processing,
+    name,country,population,recordYear,latitude,longitude,mayorName,mayorAddress,history
+    with commands such as:
+    add: Add a new city.
+    delete: Remove a city by name.
+    search: Search for a city by name and display its details.
+    update: Update specific details of a city.
+    display: Show all cities or a specific field.
+    distance: Calculate the distance between two cities.
+    save: Save the current cities to a file.
+    exit: Exit the program.
+*/
 
 class UserInterface {
 public:
-    // Start the user interface loop
+
+    static std::vector<City> findCitiesByName(const std::vector<City>& cities, const std::string& cityName) {
+        std::vector<City> results;
+        for (const auto& city : cities) {
+            if (city.name == cityName) {
+                results.push_back(city);
+            }
+        }
+        return results;
+    }
+
+    //  Helper to iterate through city names uses lambda function with capture clause,
+    static bool cityNameIterator
+    (std::vector<City>& cities, std::string &cityName, std::vector<City>::iterator& it) {
+        it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city)
+        {
+            return city.name == cityName;   //  method of lambda func
+        });
+        return it != cities.end();
+    }
+
+    // Start the user interface loop to manage user inputs
     static void start(std::vector<City>& cities) {
         std::string fileName ;
         std::string command;
@@ -256,20 +299,41 @@ private:
         std::cout << "City '" << name << "' added successfully.\n";
     }
     //  Search for a particular city, could have been built in to display
-    static void searchCity(std::vector<City>& cities) {
-
-        std::cout << "Search for an  city by its name:"<< std::endl;
+    static void searchCity(const std::vector<City>& cities) {
+        std::cout << "Enter the name of the city to search for: ";
         std::string cityName;
         std::getline(std::cin, cityName);
 
-        std::vector<City>::iterator it;
-        if (cityNameIterator(cities, cityName, it)) {
-            // If city is found, display its details
-            it->display();
-        } else {
+        const auto matches = findCitiesByName(cities, cityName);
+
+        if (matches.empty()) {
             std::cout << "City '" << cityName << "' not found.\n";
+            return;
         }
+
+        if (matches.size() == 1) {
+            // Single match, display directly
+            matches[0].display();
+        } else {
+            // Multiple matches, differentiate by country
+            std::cout << "Multiple cities found with the name '" << cityName << "' in different countries:\n";
+            for (size_t i = 0; i < matches.size(); ++i) {
+                std::cout << i + 1 << ". " << matches[i].name << " (" << matches[i].country << ")\n";
+            }
+
+            std::cout << "Enter the number corresponding to the correct city: ";
+            size_t choice;
+            std::cin >> choice;
+            std::cin.ignore(); // Clear input buffer
+
+            if (choice > 0 && choice <= matches.size()) {
+                matches[choice - 1].display();
+            } else {
+                std::cout << "Invalid choice.\n";
+            }
         }
+    }
+
 
     // Delete a city
     static void deleteCity(std::vector<City>& cities) {
@@ -277,23 +341,38 @@ private:
         std::string cityName;
         std::getline(std::cin, cityName);
 
-        std::vector<City>::iterator it;
-        cityNameIterator( cities, cityName, it);
+        auto matches = findCitiesByName(cities, cityName);
 
-        if (it != cities.end()) {
-            cities.erase(it);
-            std::cout << "City '" << cityName << "' has been deleted successfully.\n";
+        if (matches.empty()) {
+            std::cout << "City '" << cityName << "' not found.\n";
+            return;
+        }
+
+        if (matches.size() == 1) {
+            // Single match, delete directly, std::remove equality operator defined in City compares name and country
+            cities.erase(std::remove(cities.begin(), cities.end(), matches[0]), cities.end());
+            std::cout << "City '" << cityName << "' deleted successfully.\n";
         } else {
-            std::cout << "Error: City '" << cityName << "' not found.\n";
+            // Multiple matches, differentiate by country
+            std::cout << "Multiple cities found with the name '" << cityName << "' in different countries:\n";
+            for (size_t i = 0; i < matches.size(); ++i) {
+                std::cout << i + 1 << ". " << matches[i].name << " (" << matches[i].country << ")\n";
+            }
+
+            std::cout << "Enter the number corresponding to the city to delete: ";
+            size_t choice;
+            std::cin >> choice;
+            std::cin.ignore(); // Clear input buffer
+
+            if (choice > 0 && choice <= matches.size()) {
+                cities.erase(std::remove(cities.begin(), cities.end(), matches[choice - 1]), cities.end());
+                std::cout << "City deleted successfully.\n";
+            } else {
+                std::cout << "Invalid choice.\n";
+            }
         }
     }
-    //  Helper to iterate through city names uses lambda function with capture clause,
-    static bool cityNameIterator (std::vector<City>& cities, std::string &cityName, std::vector<City>::iterator& it) {
-        it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city) {
-            return city.name == cityName;   //  method of lambda func
-        });
-        return it != cities.end();
-    }
+
 
     // Update a city's details
     static void updateCity(std::vector<City>& cities) {
@@ -381,38 +460,84 @@ private:
         }
     }
 
-    static void distance(std::vector<City>& cities) {
-        if (cities.empty()) {
-            std::cout << "No cities to calculate the distance between.\n";
-            return;
-        }
-
-        std::cout << "Enter the first city: ";
-        std::string cityA;
-        std::getline(std::cin, cityA);
-
-        std::cout << "Enter the second city: ";
-        std::string cityB;
-        std::getline(std::cin, cityB);
-
-        std::vector<City>::iterator iterA, iterB;
-
-        // Find the first city
-        if (!cityNameIterator(cities, cityA, iterA)) {
-            std::cout << "City '" << cityA << "' not found.\n";
-            return;
-        }
-
-        // Find the second city
-        if (!cityNameIterator(cities, cityB, iterB)) {
-            std::cout << "City '" << cityB << "' not found.\n";
-            return;
-        }
-
-        // Calculate the distance
-        double distance = DistanceCalculator::calculateDistance(*iterA, *iterB);
-        std::cout << "The distance between " << cityA << " and " << cityB << " is " << distance << " kilometers.\n";
+    static void distance(const std::vector<City>& cities) {
+    if (cities.empty()) {
+        std::cout << "No cities to calculate the distance between.\n";
+        return;
     }
+
+    // Get the first city
+    std::cout << "Enter the name of the first city: ";
+    std::string cityA;
+    std::getline(std::cin, cityA);
+
+    // Find all matches for the first city
+    auto matchesA = findCitiesByName(cities, cityA);
+    if (matchesA.empty()) {
+        std::cout << "City '" << cityA << "' not found.\n";
+        return;
+    }
+
+    City city1;
+    if (matchesA.size() == 1) {
+        city1 = matchesA[0];
+    } else {
+        // Multiple matches, let the user select
+        std::cout << "Multiple cities found for '" << cityA << "':\n";
+        for (size_t i = 0; i < matchesA.size(); ++i) {
+            std::cout << i + 1 << ". " << matchesA[i].name << " (" << matchesA[i].country << ")\n";
+        }
+        std::cout << "Select the correct city by number: ";
+        size_t choice;
+        std::cin >> choice;
+        std::cin.ignore(); // Clear input buffer
+
+        if (choice < 1 || choice > matchesA.size()) {
+            std::cout << "Invalid choice.\n";
+            return;
+        }
+        city1 = matchesA[choice - 1];
+    }
+
+    // Get the second city
+    std::cout << "Enter the name of the second city: ";
+    std::string cityB;
+    std::getline(std::cin, cityB);
+
+    // Find all matches for the second city
+    auto matchesB = findCitiesByName(cities, cityB);
+    if (matchesB.empty()) {
+        std::cout << "City '" << cityB << "' not found.\n";
+        return;
+    }
+
+    City city2;
+    if (matchesB.size() == 1) {
+        city2 = matchesB[0];
+    } else {
+        // Multiple matches, let the user select
+        std::cout << "Multiple cities found for '" << cityB << "':\n";
+        for (size_t i = 0; i < matchesB.size(); ++i) {
+            std::cout << i + 1 << ". " << matchesB[i].name << " (" << matchesB[i].country << ")\n";
+        }
+        std::cout << "Select the correct city by number: ";
+        size_t choice;
+        std::cin >> choice;
+        std::cin.ignore(); // Clear input buffer
+
+        if (choice < 1 || choice > matchesB.size()) {
+            std::cout << "Invalid choice.\n";
+            return;
+        }
+        city2 = matchesB[choice - 1];
+    }
+
+    // Calculate the distance
+    double distance = DistanceCalculator::calculateDistance(city1, city2);
+    std::cout << "The distance between " << city1.name << " and " << city2.name
+              << " is " << distance << " kilometers.\n";
+}
+
 
     //  Save functionality
     static void saveToFile(const std::vector<City>& cities) {

@@ -102,3 +102,4 @@ Lusaka,Zambia,3103455,2021,-15.3875,28.3228,Chilando Chitangala,Lusaka City Coun
 Yaoundé,Cameroon,4030000,2021,3.8480,11.5021,Luc Messi Atangana,City Hall,Capital of Cameroon.
 Dakar,Senegal,1146054,2021,14.6928,-17.4467,Abdoulaye Diouf Sarr,City Hall,Capital of Senegal.
 Bamako,Mali,3291600,2021,12.6392,-8.0029,Adama Sangaré,City Hall,Capital of Mali.
+London, USA,10533, 2020, 39.896042, -83.444595, Patrick J. Closser, City Hall, A city in the County of Madison Ohio.
