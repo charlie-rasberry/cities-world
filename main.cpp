@@ -118,7 +118,7 @@ public:
 
         //  Validate that the file opened or not
         if (!file.is_open()) {
-            std::cerr << "Error: Cannot open file.\n";
+            std::cout<< "File doesn't exist: Creating File. . .  "<< fileName<< '\n';
             return cities;
         }
         //  While loop to read files with cities data
@@ -279,12 +279,13 @@ private:
 
         std::cout << "Enter population: ";
         std::cin >> population;
-        if (std::cin.fail() || population > 100000000000 || population < 0) {
+        if (std::cin.fail() || population < 0) {
             std::cin.clear();
-            std::cerr<<"Error: Population Number Too Large"<< '\n';
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Invalid input. Please enter a positive number.\n";
             std::cin >> population;
         }
-        std::cin.ignore(); // Clear newline character
+
 
         std::cout << "Enter record year: ";
         std::cin >> recordYear;
