@@ -17,7 +17,7 @@ class City {
         double latitude, longitude;
 
         //  Constructor and Destructor
-        // Default constructor
+        // Default constructor initializes attributes with default values.
         City()
         : name(), country(), history(), mayorName(), mayorAddress(),
           population(0), recordYear(0), latitude(0.0), longitude(0.0) {}
@@ -25,7 +25,7 @@ class City {
         //  Main constructor
         City (std::string cityName, std::string cityCountry, int pop, int year, double lat, double lon
             , std::string mayor, std::string address, std::string hist)
-            //  Initialise and make variable names more intuitive
+            // Parameterized constructor to initialize a City object with given values.
             : name(cityName), country(cityCountry), population(pop),
             recordYear(year), latitude(lat), longitude(lon),
             mayorName(mayor), mayorAddress(address), history(hist) {}
@@ -33,7 +33,7 @@ class City {
         //  Methods
 
         void display() const {
-             //  Used to print all details of the city.
+            // Displays all the attributes of the City object in a formatted output.
              std::cout << "City Name: " << name << "\n"
                   << "Country: " << country << "\n"
                   << "History: " << history << "\n"
@@ -44,8 +44,9 @@ class City {
                   << "Coordinates: (" << latitude << ", " << longitude << ")\n";
 
         }
-    //  Update city variables by string int or double, likely make shorter if I have time.
-    //  Function Overloaded to use different param types.
+    //  Updates string fields like name, country, and history of the City object.
+    //  Function Overloaded to use different parameter types.
+    // Updates string fields: name, country, and history of the City object.
     void update(const std::string& field, const std::string& value) {
             if (field == "name") name = value;
             else if (field == "country") country = value;
@@ -54,18 +55,22 @@ class City {
             else if (field == "mayorAddress") mayorAddress = value;
             else std::cerr << "Invalid field name.\n";
         }
+
+    // Updates integer fields, population and recordYear of the City object.
     void update(const std::string& field, const int value) {
             if (field == "population") population = value;
             else if (field == "recordYear") recordYear = value;
             else std::cerr << "Invalid field name.\n";
         }
 
+    // Updates floating-point fields, latitude and longitude of the City object.
     void update(const std::string& field, const double value) {
             if (field == "latitude") latitude = value;
             else if (field == "longitude") longitude = value;
             else std::cerr << "Invalid field name.\n";
         }
 
+    // Compares two City objects by name and country.
     bool operator==(const City& other) const {
             //  City Objects are only equal if name and country match
             return name == other.name && country == other.country;
@@ -73,17 +78,18 @@ class City {
 
 };
 
-//  Class for distance formula (Haversine formula) and angular distance
+//  Class for distance formula (Haversine formula)
 //  cos d = sin(phi1)*sin(phi2) + cos(phi1)*cos(phi2)*cos(L1 - L2)
 //  (6371*pi*d) / 180 = s (km)
 
 class DistanceCalculator {
     public:
+
     static constexpr double EARTH_RADIUS_KM = 6371.0;
     //  Method to calculate the displacement between cities
     static double calculateDistance(const City& city1, const City& city2) {
 
-        // Convert lat and lon to rads from deg
+        // Converts latitude and longitude values from degrees to radians.
         const double lat1 = city1.latitude * M_PI / 180.0;
         const double lon1 = city1.longitude * M_PI / 180.0;
         const double lat2 = city2.latitude * M_PI / 180.0;
@@ -121,17 +127,15 @@ public:
             std::cout<< "File doesn't exist: Creating File. . .  "<< fileName<< '\n';
             return cities;
         }
-        //  While loop to read files with cities data
+        // Loads city data from a text file into a vector of City objects.
         std::string line;
         while (std::getline(file, line)) {
-
             std::istringstream stream(line);
 
             std::string name, country, history, mayorName, mayorAddress;
             int population, recordYear;
             double latitude, longitude;
 
-            //  Read the data from a single line
             std::getline(stream, name, ',');
             std::getline(stream, country, ',');
             stream >> population;
@@ -194,25 +198,27 @@ public:
 
     static std::vector<City> findCitiesByName(const std::vector<City>& cities, const std::string& cityName) {
         std::vector<City> results;
+
+        // Convert search query to lowercase
+        std::string queryLower = toLower(cityName);
+
         for (const auto& city : cities) {
-            if (city.name == cityName) {
+            // Convert city name to lowercase for comparison
+            if (toLower(city.name) == queryLower) {
                 results.push_back(city);
             }
         }
         return results;
     }
 
-    //  Helper to iterate through city names uses lambda function with capture clause,
-    static bool cityNameIterator
-    (std::vector<City>& cities, std::string &cityName, std::vector<City>::iterator& it) {
-        it = std::find_if(cities.begin(), cities.end(),[&cityName](const City& city)
-        {
-            return city.name == cityName;   //  method of lambda func
-        });
-        return it != cities.end();
+    // Helper function to convert a string to lowercase
+    static std::string toLower(const std::string& str) {
+        std::string lowerStr = str;
+        std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+        return lowerStr;
     }
 
-    // Start the user interface loop to manage user inputs
+    // Main interface for user commands to manage cities.
     static void start(std::vector<City>& cities) {
         std::string fileName ;
         std::string command;
@@ -229,10 +235,10 @@ public:
         }
 
         std::cout << "Available commands: add, delete, search, update, display, distance, save, help, exit\n";
-
         while (true) {
             std::cout << "\nEnter a command: ";
             std::getline(std::cin, command);
+            std::cout << std::endl;
 
             if (command == "add") {
                 addCity(cities);
@@ -249,7 +255,14 @@ public:
             } else if (command == "save") {
                 saveToFile(cities);
             } else if (command == "help") {
-                help();
+                std::cout<< "add: add a city\n";
+                std::cout << "delete: delete a city\n";
+                std::cout << "search: search a city by name (Case Insensitive)\n";
+                std::cout << "update: update a cities fields\n";
+                std::cout << "display: display all cities by field\n";
+                std::cout << "distance: calculate distance between two cities\n";
+                std::cout << "save: save city data to file\n";
+                std::cout << "exit\n";
             } else if (command == "exit") {
                 std::cout << "Exiting the program. Goodbye!\n";
                 break;
@@ -260,57 +273,110 @@ public:
     }
 
 private:
-    //  Quick help command to display commands if the user needs to
-    static void help() {
-        std::cout << "Available commands: add, delete, search, update, display, distance, save, exit\n";
-    }
 
     // Add a new city
     static void addCity(std::vector<City>& cities) {
-        std::string name, country, history, mayorName, mayorAddress;
-        int population, recordYear;
-        double latitude, longitude;
+    std::string name, country, history, mayorName, mayorAddress;
+    int population, recordYear;
+    double latitude, longitude;
 
+    // Input for city name
+    do {
         std::cout << "Enter city name: ";
         std::getline(std::cin, name);
+        if (name.empty()) {
+            std::cerr << "City name cannot be empty. Please try again.\n";
+        }
+    } while (name.empty());
 
+    // Input for country
+    do {
         std::cout << "Enter country: ";
         std::getline(std::cin, country);
+        if (country.empty()) {
+            std::cerr << "Country cannot be empty. Please try again.\n";
+        }
+    } while (country.empty());
 
+    // Input for population
+    do {
         std::cout << "Enter population: ";
         std::cin >> population;
         if (std::cin.fail() || population < 0) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Invalid input. Please enter a positive number.\n";
-            std::cin >> population;
+            std::cin.clear(); // Clear error flag
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Discard invalid input
+            std::cerr << "Population must be a positive number. Please try again.\n";
         }
+    } while (population < 0);
 
-
+    // Input for record year
+    do {
         std::cout << "Enter record year: ";
         std::cin >> recordYear;
-        std::cin.ignore();
+        if (std::cin.fail() || recordYear < 1900 || recordYear > 2024) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Record year must be between 1900 and 2024. Please try again.\n";
+        }
+    } while (recordYear < 1900 || recordYear > 2024);
+    std::cin.ignore();
 
-        std::cout << "Enter latitude: ";
+    // Input for latitude
+    do {
+        std::cout << "Enter latitude (-90 to 90): ";
         std::cin >> latitude;
-        std::cin.ignore();
+        if (std::cin.fail() || latitude < -90 || latitude > 90) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Latitude must be between -90 and 90. Please try again.\n";
+        }
+    } while (latitude < -90 || latitude > 90);
+    std::cin.ignore();
 
-        std::cout << "Enter longitude: ";
+    // Input for longitude
+    do {
+        std::cout << "Enter longitude (-180 to 180): ";
         std::cin >> longitude;
-        std::cin.ignore();
+        if (std::cin.fail() || longitude < -180 || longitude > 180) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Longitude must be between -180 and 180. Please try again.\n";
+        }
+    } while (longitude < -180 || longitude > 180);
+    std::cin.ignore();
 
+    // Input for mayor name
+    do {
         std::cout << "Enter mayor name: ";
         std::getline(std::cin, mayorName);
+        if (mayorName.empty()) {
+            std::cerr << "Mayor name cannot be empty. Please try again.\n";
+        }
+    } while (mayorName.empty());
 
+    // Input for mayor address
+    do {
         std::cout << "Enter mayor address: ";
         std::getline(std::cin, mayorAddress);
+        if (mayorAddress.empty()) {
+            std::cerr << "Mayor address cannot be empty. Please try again.\n";
+        }
+    } while (mayorAddress.empty());
 
+    // Input for history
+    do {
         std::cout << "Enter short history: ";
         std::getline(std::cin, history);
+        if (history.empty()) {
+            std::cerr << "History cannot be empty. Please try again.\n";
+        }
+    } while (history.empty());
 
-        cities.emplace_back(name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history);
-        std::cout << "City '" << name << "' added successfully.\n";
-    }
+    // Add city to the list
+    cities.emplace_back(name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history);
+    std::cout << "City '" << name << "' added successfully.\n";
+}
+
     //  Search for a particular city, could have been built in to display
     static void searchCity(const std::vector<City>& cities) {
         std::cout << "Enter the name of the city to search for: ";
@@ -388,45 +454,126 @@ private:
 
 
     // Update a city's details
-    static void updateCity(std::vector<City>& cities) {
-        std::cout << "Enter the name of the city to update: ";
-        std::string cityName;
-        std::getline(std::cin, cityName);
+  static void updateCity(std::vector<City>& cities) {
+    std::cout << "Enter the name of the city to update: ";
+    std::string cityName;
+    std::getline(std::cin, cityName);
 
-        std::vector<City>::iterator iter;
-        cityNameIterator( cities, cityName, iter);
+    auto matches = findCitiesByName(cities, cityName);
 
-        if (iter != cities.end()) {
-            std::string field;
-            std::cout << "Enter the field to update (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history): ";
-            std::getline(std::cin, field);
+    if (matches.empty()) {
+        std::cout << "Error: City '" << cityName << "' not found.\n";
+        return;
+    }
 
-            if (field == "name" || field == "country" || field == "mayorName" || field == "mayorAddress" || field == "history") {
-                std::cout << "Enter the new value: ";
-                std::string value;
-                std::getline(std::cin, value);
-                iter->update(field, value);
-            } else if (field == "population" || field == "recordYear") {
-                std::cout << "Enter the new value: ";
-                int value;
-                std::cin >> value;
-                std::cin.ignore();
-                iter->update(field, value);
-            } else if (field == "latitude" || field == "longitude") {
-                std::cout << "Enter the new value: ";
-                double value;
-                std::cin >> value;
-                std::cin.ignore();
-                iter->update(field, value);
-            } else {
-                std::cout << "Invalid field name.\n";
-            }
+    City* cityToUpdate = nullptr;
+
+    if (matches.size() == 1) {
+        auto it = std::find(cities.begin(), cities.end(), matches[0]);
+        cityToUpdate = &(*it);
+    } else {
+        std::cout << "Multiple cities found for '" << cityName << "':\n";
+        for (size_t i = 0; i < matches.size(); ++i) {
+            std::cout << i + 1 << ". " << matches[i].name << " (" << matches[i].country << ")\n";
+        }
+
+        std::cout << "Enter the number corresponding to the city to update: ";
+        size_t choice;
+        std::cin >> choice;
+        std::cin.ignore();
+
+        if (choice > 0 && choice <= matches.size()) {
+            auto it = std::find(cities.begin(), cities.end(), matches[choice - 1]);
+            cityToUpdate = &(*it);
         } else {
-            std::cout << "Error: City '" << cityName << "' not found.\n";
+            std::cout << "Invalid choice.\n";
+            return;
         }
     }
 
-    // Display all cities
+    if (cityToUpdate) {
+        std::string field;
+        std::cout << "Enter the field to update (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history): ";
+        std::getline(std::cin, field);
+
+        if (field == "name" || field == "country" || field == "mayorName" || field == "mayorAddress" || field == "history") {
+            std::string value;
+            do {
+                std::cout << "Enter the new value for " << field << ": ";
+                std::getline(std::cin, value);
+                if (value.empty()) {
+                    std::cerr << field << " cannot be empty. Please try again.\n";
+                }
+            } while (value.empty());
+            cityToUpdate->update(field, value);
+
+        } else if (field == "population") {
+            int value;
+            do {
+                std::cout << "Enter the new value for population (>= 0): ";
+                std::cin >> value;
+                if (std::cin.fail() || value < 0) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cerr << "Population must be a positive number. Please try again.\n";
+                } else {
+                    break;
+                }
+            } while (true);
+            cityToUpdate->update(field, value);
+
+        } else if (field == "recordYear") {
+            int value;
+            do {
+                std::cout << "Enter the new value for record year (1900-2024): ";
+                std::cin >> value;
+                if (std::cin.fail() || value < 1900 || value > 2024) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cerr << "Record year must be between 1900 and 2024. Please try again.\n";
+                } else {
+                    break;
+                }
+            } while (true);
+            cityToUpdate->update(field, value);
+
+        } else if (field == "latitude") {
+            double value;
+            do {
+                std::cout << "Enter the new value for latitude (-90 to 90): ";
+                std::cin >> value;
+                if (std::cin.fail() || value < -90 || value > 90) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cerr << "Latitude must be between -90 and 90. Please try again.\n";
+                } else {
+                    break;
+                }
+            } while (true);
+            cityToUpdate->update(field, value);
+
+        } else if (field == "longitude") {
+            double value;
+            do {
+                std::cout << "Enter the new value for longitude (-180 to 180): ";
+                std::cin >> value;
+                if (std::cin.fail() || value < -180 || value > 180) {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cerr << "Longitude must be between -180 and 180. Please try again.\n";
+                } else {
+                    break;
+                }
+            } while (true);
+            cityToUpdate->update(field, value);
+
+        } else {
+            std::cout << "Invalid field name.\n";
+        }
+
+        std::cout << "City details updated successfully.\n";
+    }
+}
     // Display all cities or a specific field
     static void displayCities(const std::vector<City>& cities) {
         if (cities.empty()) {
@@ -434,7 +581,7 @@ private:
             return;
         }
 
-        std::cout << "Enter the field to display (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history): [Enter Blank For ALL] ";
+        std::cout << "Enter the field to display (name, country, population, recordYear, latitude, longitude, mayorName, mayorAddress, history) [Leave Blank For ALL]:  \n";
         std::string field;
         std::getline(std::cin, field);
 
@@ -552,12 +699,11 @@ private:
 }
 
 
-    //  Save functionality
     static void saveToFile(const std::vector<City>& cities) {
         std::cout << "Enter the file name to save the data: ";
         std::string fileName;
         std::getline(std::cin, fileName);
-
+        // Saves the current list of cities to a user-specified file.
         FileManager::saveData(cities, fileName);
         std::cout << "Data successfully saved to " << fileName << ".\n";
     }
